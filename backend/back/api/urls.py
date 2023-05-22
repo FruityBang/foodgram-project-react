@@ -1,10 +1,11 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import CustomUserViewset
+from .views import CustomUserViewset, TagViewSet
 
 router = DefaultRouter()
 router.register('users', CustomUserViewset)
+router.register('tags', TagViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

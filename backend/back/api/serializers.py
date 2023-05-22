@@ -1,6 +1,10 @@
 from djoser.serializers import UserSerializer, TokenCreateSerializer
 from rest_framework import serializers
 from users.models import User
+from djoser.conf import settings
+from django.contrib.auth import authenticate
+from recipes.models import Tag
+import webcolors
 
 
 class CustomUserSerializer(UserSerializer):
@@ -26,17 +30,40 @@ class CustomUserSerializer(UserSerializer):
 #        return user
 
 
-class CustomTokenCreateSerializer(TokenCreateSerializer):
-    password = serializers.CharField(
-        write_only=True,
-        required=True
-    )
-
-    class Meta:
-        model = User
-        fields = (
-            'password', 'email'
-        )
+# class CustomTokenCreateSerializer(TokenCreateSerializer):
+#     password = serializers.CharField(
+#         required=False, style={'input_type': 'password'}
+#         )
+# 
+#     default_error_messages = {
+#         "invalid_credentials": settings.CONSTANTS.messages.INVALID_CREDENTIALS_ERROR,
+#         "inactive_account": settings.CONSTANTS.messages.INACTIVE_ACCOUNT_ERROR,
+#     }
+# 
+#     def __init__(self, *args, **kwargs):
+#         super(TokenCreateSerializer, self).__init__(*args, **kwargs)
+#         self.user = None
+#         self.fields[User.EMAIL_FIELD] = serializers.EmailField(
+#             required=False
+#         )
+# 
+#     def validate(self, attrs):
+#         self.user = authenticate(
+#             email=attrs.get(User.EMAIL_FIELD),
+#             password=attrs.get('password')
+#             )
+# 
+#         self._validate_user_exists(self.user)
+#         self._validate_user_is_active(self.user)
+#         return attrs
+# 
+#     def _validate_user_exists(self, user):
+#         if not user:
+#             self.fail('invalid_credentials')
+# 
+#     def _validate_user_is_active(self, user):
+#         if not user.is_active:
+#             self.fail('inactive_account')
 
 #class UserSerializer(serializers.ModelSerializer):
 #    password = serializers.CharField(
@@ -59,3 +86,25 @@ class CustomTokenCreateSerializer(TokenCreateSerializer):
 #    class Meta:
 #        model = User
 #
+
+
+class Hex2NameColor(serializers.Field):
+    def to_representation(self, value):
+        return value
+
+    def to_internal_value(self, data):
+        try:
+            data = webcolors.hex_to_name(data)
+        except ValueError:
+            raise serializers.ValidationError('Для этого цвета нет имени')
+        return data
+
+
+class TagSerializer(serializers.ModelSerializer):
+    color = Hex2NameColor()
+
+    class Meta:
+        model = Tag
+        fields = (
+            'id', 'name', 'color', 'slug'
+        )

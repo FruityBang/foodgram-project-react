@@ -2,8 +2,9 @@ from djoser.views import UserViewSet
 from rest_framework import generics, status, viewsets
 from rest_framework.response import Response
 from users.models import User
+from recipes.models import Tag
 
-from .serializers import CustomUserSerializer
+from .serializers import CustomUserSerializer, TagSerializer
 
 
 class CustomUserViewset(UserViewSet):
@@ -56,3 +57,8 @@ class CustomUserViewset(UserViewSet):
 #             return Response(status=status.HTTP_204_NO_CONTENT)
 #         return Response(status=status.HTTP_400_BAD_REQUEST)
 #
+
+
+class TagViewSet(viewsets.ModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer

@@ -9,3 +9,5 @@ requests==2.30.0
 PyJWT==2.7.0
 djoser==2.1.0
 djangorestframework-simplejwt==4.7.2
+Pillow==9.5.0
+webcolors==1.13
