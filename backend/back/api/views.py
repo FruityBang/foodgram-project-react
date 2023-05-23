@@ -1,11 +1,13 @@
 from djoser.views import UserViewSet
 from rest_framework import viewsets
+from rest_framework.pagination import PageNumberPagination
 # from rest_framework import generics
 # from rest_framework import status
 # from rest_framework.response import Response
 from recipes.models import Ingredient, Tag
 from users.models import User
 
+from.pagination import UserCustomPagination
 from .serializers import (
     CustomUserSerializer, IngredientSerializer, TagSerializer
 )
@@ -14,6 +16,8 @@ from .serializers import (
 class CustomUserViewset(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
+    pagination_class = UserCustomPagination
+
 
 # class UserViewSet(viewsets.ModelViewSet):
 #     queryset = User.objects.all()
