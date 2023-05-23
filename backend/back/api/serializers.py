@@ -1,13 +1,15 @@
-from djoser.serializers import UserSerializer, TokenCreateSerializer
+from djoser.serializers import UserCreateSerializer
+from djoser.serializers import UserSerializer
+# from djoser.serializers import TokenCreateSerializer
 from rest_framework import serializers
 from users.models import User
-from djoser.conf import settings
-from django.contrib.auth import authenticate
-from recipes.models import Tag
+# from djoser.conf import settings
+# from django.contrib.auth import authenticate
+from recipes.models import Tag, Ingredient
 import webcolors
 
 
-class CustomUserSerializer(UserSerializer):
+class CustomUserSerializer(UserCreateSerializer):
     password = serializers.CharField(
         write_only=True,
         required=True
@@ -36,8 +38,10 @@ class CustomUserSerializer(UserSerializer):
 #         )
 # 
 #     default_error_messages = {
-#         "invalid_credentials": settings.CONSTANTS.messages.INVALID_CREDENTIALS_ERROR,
-#         "inactive_account": settings.CONSTANTS.messages.INACTIVE_ACCOUNT_ERROR,
+#         "invalid_credentials": (
+#               settings.CONSTANTS.messages.INVALID_CREDENTIALS_ERROR),
+#         "inactive_account": (
+#               settings.CONSTANTS.messages.INACTIVE_ACCOUNT_ERROR),
 #     }
 # 
 #     def __init__(self, *args, **kwargs):
@@ -65,7 +69,7 @@ class CustomUserSerializer(UserSerializer):
 #         if not user.is_active:
 #             self.fail('inactive_account')
 
-#class UserSerializer(serializers.ModelSerializer):
+# class UserSerializer(serializers.ModelSerializer):
 #    password = serializers.CharField(
 #        write_only=True,
 #        required=True
@@ -79,7 +83,7 @@ class CustomUserSerializer(UserSerializer):
 #        )
 #
 #
-#class ChangePasswordSerializer(serializers.Serializer):
+# class ChangePasswordSerializer(serializers.Serializer):
 #    new_password = serializers.CharField(required=True)
 #    current_password = serializers.CharField(required=True)
 #
@@ -94,10 +98,9 @@ class Hex2NameColor(serializers.Field):
 
     def to_internal_value(self, data):
         try:
-            data = webcolors.hex_to_name(data)
+            return webcolors.hex_to_name(data)
         except ValueError:
             raise serializers.ValidationError('Для этого цвета нет имени')
-        return data
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -107,4 +110,12 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = (
             'id', 'name', 'color', 'slug'
+        )
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = (
+            'id', 'name', 'measurement_unit'
         )
