@@ -1,4 +1,4 @@
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from users.models import User
 
@@ -23,6 +23,18 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
+    BLUE = "#0000FF"
+    RED = "#FF0000"
+    GREEN = "#008000"
+    YELLOW = "#FFFF00"
+
+    COLOR_CHOICES = [
+        (BLUE, "Синий"),
+        (RED, "Красный"),
+        (GREEN, "Зелёный"),
+        (YELLOW, "Жёлтый"),
+    ]
+
     name = models.CharField(
         'Название',
         max_length=200
@@ -30,14 +42,8 @@ class Tag(models.Model):
     color = models.CharField(
         'Цвет в HEX',
         max_length=7,
-        null=True,
-        validators=[
-            RegexValidator(
-                '^#([a-fA-F0-9]{6})',
-                message='Поле должно содержать HEX-код выбранного цвета.'
-            )
-        ]
-
+        choices=COLOR_CHOICES,
+        unique=True,
     )
     slug = models.SlugField(
         'Уникальный слаг',
