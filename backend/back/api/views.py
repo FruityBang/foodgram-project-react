@@ -1,5 +1,5 @@
 from djoser.views import UserViewSet
-from recipes.models import Ingredient, Tag
+from recipes.models import Ingredient, Recipe, Tag
 from rest_framework import viewsets
 from users.models import User
 
@@ -13,12 +13,3 @@ class CustomUserViewset(UserViewSet):
     serializer_class = CustomUserSerializer
     pagination_class = UserCustomPagination
 
-
-class TagViewSet(viewsets.ModelViewSet):
-    queryset = Tag.objects.all()
-    serializer_class = TagSerializer
-
-
-class IngredientViewSet(viewsets.ModelViewSet):
-    queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer

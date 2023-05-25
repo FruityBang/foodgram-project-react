@@ -1,5 +1,8 @@
+import base64
+
+from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer
-from recipes.models import Ingredient, Tag
+from recipes.models import Ingredient, IngredientInRecipe, Recipe, Tag
 from rest_framework import serializers
 from users.models import User
 
@@ -18,18 +21,14 @@ class CustomUserSerializer(UserCreateSerializer):
         )
 
 
-class TagSerializer(serializers.ModelSerializer):
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            format, imgstr = data.split(';base64,')
+            ext = format.split('/')[-1]
 
-    class Meta:
-        model = Tag
-        fields = (
-            'id', 'name', 'color', 'slug'
-        )
+            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+
+        return super().to_internal_value(data)
 
 
-class IngredientSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ingredient
-        fields = (
-            'id', 'name', 'measurement_unit'
-        )
