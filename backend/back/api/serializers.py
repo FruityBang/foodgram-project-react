@@ -1,12 +1,11 @@
+import base64
+
+import webcolors
+from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer
-from djoser.serializers import UserSerializer
-# from djoser.serializers import TokenCreateSerializer
+from recipes.models import Ingredient, Recipe, Tag
 from rest_framework import serializers
 from users.models import User
-# from djoser.conf import settings
-# from django.contrib.auth import authenticate
-from recipes.models import Tag, Ingredient
-import webcolors
 
 
 class CustomUserSerializer(UserCreateSerializer):
@@ -21,75 +20,6 @@ class CustomUserSerializer(UserCreateSerializer):
             'email', 'id', 'username',
             'first_name', 'last_name', 'password'
         )
-
-#    def create(self, validated_data):
-#        user = User(
-#            email=validated_data['email'],
-#            username=validated_data['username']
-#        )
-#        user.set_password(validated_data['password'])
-#        user.save()
-#        return user
-
-
-# class CustomTokenCreateSerializer(TokenCreateSerializer):
-#     password = serializers.CharField(
-#         required=False, style={'input_type': 'password'}
-#         )
-# 
-#     default_error_messages = {
-#         "invalid_credentials": (
-#               settings.CONSTANTS.messages.INVALID_CREDENTIALS_ERROR),
-#         "inactive_account": (
-#               settings.CONSTANTS.messages.INACTIVE_ACCOUNT_ERROR),
-#     }
-# 
-#     def __init__(self, *args, **kwargs):
-#         super(TokenCreateSerializer, self).__init__(*args, **kwargs)
-#         self.user = None
-#         self.fields[User.EMAIL_FIELD] = serializers.EmailField(
-#             required=False
-#         )
-# 
-#     def validate(self, attrs):
-#         self.user = authenticate(
-#             email=attrs.get(User.EMAIL_FIELD),
-#             password=attrs.get('password')
-#             )
-# 
-#         self._validate_user_exists(self.user)
-#         self._validate_user_is_active(self.user)
-#         return attrs
-# 
-#     def _validate_user_exists(self, user):
-#         if not user:
-#             self.fail('invalid_credentials')
-# 
-#     def _validate_user_is_active(self, user):
-#         if not user.is_active:
-#             self.fail('inactive_account')
-
-# class UserSerializer(serializers.ModelSerializer):
-#    password = serializers.CharField(
-#        write_only=True,
-#        required=True
-#    )
-#
-#    class Meta:
-#        model = User
-#        fields = (
-#            'email', 'id', 'username',
-#            'first_name', 'last_name', 'password'
-#        )
-#
-#
-# class ChangePasswordSerializer(serializers.Serializer):
-#    new_password = serializers.CharField(required=True)
-#    current_password = serializers.CharField(required=True)
-#
-#    class Meta:
-#        model = User
-#
 
 
 class Hex2NameColor(serializers.Field):
@@ -118,4 +48,35 @@ class IngredientSerializer(serializers.ModelSerializer):
         model = Ingredient
         fields = (
             'id', 'name', 'measurement_unit'
+        )
+
+
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            format, imgstr = data.split(';base64,')
+            ext = format.split('/')[-1]
+
+            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+
+        return super().to_internal_value(data)
+
+
+# class IngredientAmountSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         fields = (
+#             'id', 'amount'
+#         )
+
+
+class RecipeSerializer(serializers.ModelSerializer):
+    author = CustomUserSerializer(read_only=True)
+    image = Base64ImageField(required=False, allow_null=False)
+    tags = TagSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id', 'author', 'name', 'image',
+            'text', 'cooking_time', 'tags'
         )

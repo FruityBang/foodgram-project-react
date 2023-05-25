@@ -1,70 +1,17 @@
 from djoser.views import UserViewSet
+from recipes.models import Ingredient, Recipe, Tag
 from rest_framework import viewsets
-from rest_framework.pagination import PageNumberPagination
-# from rest_framework import generics
-# from rest_framework import status
-# from rest_framework.response import Response
-from recipes.models import Ingredient, Tag
 from users.models import User
 
-from.pagination import UserCustomPagination
-from .serializers import (
-    CustomUserSerializer, IngredientSerializer, TagSerializer
-)
+from .pagination import UserCustomPagination
+from .serializers import (CustomUserSerializer, IngredientSerializer,
+                          RecipeSerializer, TagSerializer)
 
 
 class CustomUserViewset(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     pagination_class = UserCustomPagination
-
-
-# class UserViewSet(viewsets.ModelViewSet):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-#
-#
-# class ChangePasswordView111(generics.UpdateAPIView):
-#     serializer_class = ChangePasswordSerializer
-#
-#     def get_object(self, queryset=None):
-#         return self.request.user
-#
-#     def update(self, request, *args, **kwargs):
-#         self.object = self.get_object()
-#         serializer = self.get_serializer(data=request.data)
-#
-#         if serializer.is_valid():
-#             if not self.object.check_password(
-#                 serializer.data.get("current_password")
-#             ):
-#                 return Response({"current_password": "ur mistaken fella"})
-#             self.object.set_password(serializer.data.get("new_password"))
-#             self.object.save()
-#             return Response(status=status.HTTP_204_NO_CONTENT)
-#         return Response(status=status.HTTP_400_BAD_REQUEST)
-#
-#
-# class ChangePasswordView(generics.CreateAPIView):
-#     serializer_class = ChangePasswordSerializer
-#
-#     def get_object(self, queryset=None):
-#         return self.request.user
-#
-#     def create(self, request, *args, **kwargs):
-#         self.object = self.get_object()
-#         serializer = self.get_serializer(data=request.data)
-#
-#         if serializer.is_valid():
-#             if not self.object.check_password(
-#                 serializer.data.get("current_password")
-#             ):
-#                 return Response({"current_password": "ur mistaken fella"})
-#             self.object.set_password(serializer.data.get("new_password"))
-#             self.object.save()
-#             return Response(status=status.HTTP_204_NO_CONTENT)
-#         return Response(status=status.HTTP_400_BAD_REQUEST)
-#
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -75,3 +22,11 @@ class TagViewSet(viewsets.ModelViewSet):
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
