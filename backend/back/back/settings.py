@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,6 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_filters',
     'djoser',
 ]
 
@@ -68,29 +70,22 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
-
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+#    'DEFAULT_PAGINATION_CLASS': [
+#        'api.pagination.CustomPaginator',
+#    ],
+#    'PAGE_SIZE': 6,
+    'SEARCH_PARAM': 'name',
 }
 
 DJOSER = {
     'LOGIN_FIELD': 'email',
     'HIDE_USERS': False,
-    'PERMISSIONS': {
-        'activation': ['rest_framework.permissions.AllowAny'],
-        'password_reset': ['rest_framework.permissions.AllowAny'],
-        'password_reset_confirm': ['rest_framework.permissions.AllowAny'],
-        'set_password': ['rest_framework.permissions.AllowAny'],
-        'username_reset': ['rest_framework.permissions.AllowAny'],
-        'username_reset_confirm': ['rest_framework.permissions.AllowAny'],
-        'set_username': ['rest_framework.permissions.AllowAny'],
-        'user_create': ['rest_framework.permissions.AllowAny'],
-        'user_delete': ['rest_framework.permissions.AllowAny'],
-        'user': ['rest_framework.permissions.AllowAny'],
-        'user_list': ['rest_framework.permissions.AllowAny'],
-        'token_create': ['rest_framework.permissions.AllowAny'],
-    },
     'SERIALIZERS': {
         'user': 'api.serializers.CustomUserSerializer',
         'user_create': 'api.serializers.CustomUserSerializer',
@@ -114,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 
@@ -125,7 +120,13 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
+
+# FILE_NAME = 'shopping_cart.txt'
