@@ -76,10 +76,10 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
-#    'DEFAULT_PAGINATION_CLASS': [
-#        'api.pagination.CustomPaginator',
-#    ],
-#    'PAGE_SIZE': 6,
+    'DEFAULT_PAGINATION_CLASS': [
+        'api.pagination.CustomPaginator',
+    ],
+    'PAGE_SIZE': 6,
     'SEARCH_PARAM': 'name',
 }
 
@@ -123,4 +123,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
 
-# FILE_NAME = 'shopping_cart.txt'
+FILE_NAME = 'shopping_cart.txt'

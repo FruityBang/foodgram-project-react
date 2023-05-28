@@ -9,10 +9,6 @@ from rest_framework import serializers
 from users.models import Subscribe, User
 from django.db import transaction
 
-# -----------------------------------------------------------------------------
-#                            Приложение users
-# -----------------------------------------------------------------------------
-
 
 class UserReadSerializer(UserSerializer):
     """[GET] Cписок пользователей."""
@@ -25,8 +21,7 @@ class UserReadSerializer(UserSerializer):
                   'is_subscribed')
 
     def get_is_subscribed(self, obj):
-        if (self.context.get('request')
-           and not self.context['request'].user.is_anonymous):
+        if not self.context['request'].user.is_anonymous:
             return Subscribe.objects.filter(user=self.context['request'].user,
                                             author=obj).exists()
         return False
