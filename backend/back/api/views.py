@@ -1,8 +1,8 @@
+from django.conf import settings
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from django.conf import settings
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 from rest_framework import filters, mixins, status, viewsets
@@ -56,7 +56,9 @@ class UserViewSet(mixins.CreateModelMixin,
             pagination_class=CustomPaginator)
     def subscriptions(self, request):
         queryset = User.objects.filter(subscribing__user=request.user)
+        print(queryset)
         page = self.paginate_queryset(queryset)
+        print(page)
         serializer = SubscriptionsSerializer(page, many=True,
                                              context={'request': request})
         return self.get_paginated_response(serializer.data)
@@ -77,8 +79,7 @@ class UserViewSet(mixins.CreateModelMixin,
         if request.method == 'DELETE':
             get_object_or_404(Subscribe, user=request.user,
                               author=author).delete()
-            return Response({'detail': 'Успешная отписка'},
-                            status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({'errors': 'Рецепт уже в избранном.'},
                         status=status.HTTP_400_BAD_REQUEST)
 
@@ -184,10 +185,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
             .values_list('ingredient__name', 'total_amount',
                          'ingredient__measurement_unit')
         )
+        print(ingredients)
         file_list = []
         [file_list.append(
             '{} - {} {}.'.format(*ingredient)) for ingredient in ingredients]
         file = HttpResponse('Cписок покупок:\n' + '\n'.join(file_list),
                             content_type='text/plain')
-        file['Content-Disposition'] = (f'attachment; filename={settings.FILE_NAME}')
+        file['Content-Disposition'] = (f'attachment; '
+                                       f'filename={settings.FILE_NAME}')
         return file
