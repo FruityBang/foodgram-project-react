@@ -133,4 +133,4 @@ dmypy.json
 
 # Others
 .vscode/
-media/
+backend/back/media/
