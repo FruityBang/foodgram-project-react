@@ -142,4 +142,4 @@ DJOSER = {
 }
 
 MIN_COOK_TIME = 1
-SHOPPING_CART_FILE_NAME = 'shopping_list.txt'
+FILE_NAME = 'shopping_cart.txt'
