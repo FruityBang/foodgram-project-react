@@ -72,7 +72,7 @@ class FollowListSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
-class SubscribeSerializer(serializers.ModelSerializer):
+class FollowCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Follow

@@ -14,9 +14,9 @@ from users.models import Follow, User
 from .filters import IngredientFilter, TagFilter
 from .pagination import CustomPagination
 from .permissions import IsOwnerOrReadOnly
-from .serializers import (AddRecipeSerializer, FollowListSerializer,
-                          IngredientSerializer, RecipeSerializer,
-                          ShortRecipeSerializer, SubscribeSerializer,
+from .serializers import (AddRecipeSerializer, FollowCreateSerializer,
+                          FollowListSerializer, IngredientSerializer,
+                          RecipeSerializer, ShortRecipeSerializer,
                           TagSerializer)
 from .utils import convert_txt
 
@@ -27,32 +27,29 @@ class FollowListView(ListAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        user = self.request.user
-        return user.follower.all()
+        return self.request.user.follower.all()
 
 
-class SubscribeView(views.APIView):
+class CreateFollowView(views.APIView):
     pagination_class = CustomPagination
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, pk):
         author = get_object_or_404(User, pk=pk)
-        user = self.request.user
-        data = {'author': author.id, 'user': user.id}
-        serializer = SubscribeSerializer(
-            data=data, context={'request': request}
+        serializer = FollowCreateSerializer(
+            data={'author': author.id, 'user': self.request.user.id},
+            context={'request': request}
         )
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid()
         serializer.save()
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, pk):
-        author = get_object_or_404(User, pk=pk)
-        user = self.request.user
-        subscription = get_object_or_404(
-            Follow, user=user, author=author
-        )
-        subscription.delete()
+        get_object_or_404(
+            Follow,
+            user=self.request.user,
+            author=get_object_or_404(User, pk=pk)
+        ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
