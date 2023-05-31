@@ -14,9 +14,9 @@ from users.models import Follow, User
 from .filters import TagFilter
 from .pagination import CustomPagination
 from .permissions import IsOwnerOrReadOnly
-from .serializers import (AddRecipeSerializer, FollowCreateSerializer,
-                          FollowListSerializer, IngredientSerializer,
-                          RecipeSerializer, ShortRecipeSerializer,
+from .serializers import (FollowCreateSerializer, FollowListSerializer,
+                          IngredientSerializer, RecipeListSerializer,
+                          RecipeCreateSerializer, ShortRecipeSerializer,
                           TagSerializer)
 from .utils import convert_txt
 
@@ -81,8 +81,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
-            return RecipeSerializer
-        return AddRecipeSerializer
+            return RecipeListSerializer
+        return RecipeCreateSerializer
 
     def perform_create(self, serializer):
         user = self.request.user

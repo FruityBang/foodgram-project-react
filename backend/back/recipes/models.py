@@ -34,51 +34,24 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='recipes',
-        verbose_name='Автор рецепта',
-        help_text='Введите автора'
+        related_name='recipes'
     )
-    image = models.ImageField(
-        upload_to='recipes/',
-        verbose_name='Изображение',
-        help_text='Загрузите изображение блюда'
-    )
-    text = models.TextField(
-        verbose_name='Описание',
-        help_text='Введите описание рецепта'
-    )
-    tags = models.ManyToManyField(
-        Tag,
-        db_index=True,
-        related_name='recipes',
-        verbose_name='Теги',
-        help_text='Выберите теги'
-    )
+    image = models.ImageField('Изображение', upload_to='recipes/images/')
+    text = models.TextField('Описание')
+    tags = models.ManyToManyField(Tag, related_name='recipes')
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
         through_fields=('recipe', 'ingredient'),
-        verbose_name='Ингредиенты',
-        help_text='Выберите ингредиенты'
     )
     cooking_time = models.PositiveSmallIntegerField(
-        null=False,
-        verbose_name='Время приготовления',
-        help_text='Введите время приготовления',
-        validators=(
-            MinValueValidator(
-                settings.MIN_COOK_TIME,
-                f'Минимальное время: {settings.MIN_COOK_TIME} минута'
-            ),
-        )
+        'Время приготовления',
+        validators=[MinValueValidator(1)]
     )
-    pub_date = models.DateTimeField(
-        'Дата публикации',
-        auto_now_add=True,
-        db_index=True)
+    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     class Meta:
-        ordering = ('-pub_date',)
+        ordering = ['-pub_date']
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
