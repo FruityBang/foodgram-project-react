@@ -116,30 +116,12 @@ REST_FRAMEWORK = {
 
 DJOSER = {
     "LOGIN_FIELD": 'email',
-    'USER_ID_FIELD': 'id',
-    'PASSWORD_RESET_CONFIRM_URL': 'set_password/{uid}/{token}',
-    "SEND_ACTIVATION_EMAIL": False,
     'HIDE_USERS': False,
     'SERIALIZERS': {
 
         'user': 'api.serializers.CustomUserSerializer',
         'current_user': 'api.serializers.CustomUserSerializer',
     },
-    'PERMISSIONS': {
-        'activation': ['rest_framework.permissions.AllowAny'],
-        'password_reset_confirm': ['rest_framework.permissions.AllowAny'],
-        'set_password': ['djoser.permissions.CurrentUserOrAdmin'],
-        'username_reset': ['rest_framework.permissions.AllowAny'],
-        'username_reset_confirm': ['rest_framework.permissions.AllowAny'],
-        'set_username': ['djoser.permissions.CurrentUserOrAdmin'],
-        'user_create': ['rest_framework.permissions.AllowAny'],
-        'user_delete': ['djoser.permissions.CurrentUserOrAdmin'],
-        'user': ['rest_framework.permissions.AllowAny'],
-        'user_list': ['rest_framework.permissions.AllowAny'],
-        'token_create': ['rest_framework.permissions.AllowAny'],
-        'token_destroy': ['rest_framework.permissions.IsAuthenticated'],
-    }
 }
 
-MIN_COOK_TIME = 1
 FILE_NAME = 'shopping_cart.txt'

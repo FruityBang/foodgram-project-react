@@ -3,94 +3,44 @@ from django.contrib import admin
 from . import models
 
 
+@admin.register(models.Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'name',
-        'color',
-        'slug'
-    )
+    list_display = ('pk', 'name', 'color', 'slug')
     list_editable = ('color',)
-    search_fields = ('name', 'color', 'slug')
+    search_fields = ('name',)
 
 
-admin.site.register(models.Tag, TagAdmin)
-
-
-# class RecipeIngredientInline(admin.TabularInline):
-#     model = models.Recipe.ingredients.through
-#     extra = 1
-
-
-class RecipeIngredientAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'ingredient',
-        'recipe',
-        'amount'
-    )
-    search_fields = ('recipe__name', 'ingredient__name')
-
-
+@admin.register(models.Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'name',
-        'measurement_unit',
-    )
+    list_display = ('pk', 'name', 'measurement_unit')
     search_fields = ('measurement_unit',)
     list_filter = ('measurement_unit',)
 
 
+@admin.register(models.RecipeIngredient)
+class RecipeIngredientAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'recipe', 'ingredient', 'amount')
+    list_editable = ('recipe', 'ingredient', 'amount')
+
+
+@admin.register(models.Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-#    inlines = (RecipeIngredientInline,)
-    list_display = (
-        'pk',
-        'name',
-        'author'
-    )
-    search_fields = (
-        'name',
-        'author__username',
-        'author__email'
-    )
+    list_display = ('pk', 'name', 'author', 'is_favorited')
+    search_fields = ('name', 'author__username')
+    list_filter = ('name', 'author', 'tags')
     readonly_fields = ('is_favorited',)
 
     def is_favorited(self, instance):
-        return instance.favorite_recipes.count()
+        return instance.users_favorites.count()
 
 
+@admin.register(models.Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'user',
-        'recipe'
-    )
-    search_fields = (
-        'user__username',
-        'user__email',
-        'recipe__name'
-    )
+    list_display = ('pk', 'user', 'recipe')
+    search_fields = ('user__username', 'recipe__name')
 
 
+@admin.register(models.ShoppingCart)
 class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'user',
-        'recipe'
-    )
-    search_fields = (
-        'user__username',
-        'user__email',
-        'recipe__name'
-    )
-
-
-admin.site.register(models.Ingredient, IngredientAdmin)
-admin.site.register(models.Recipe, RecipeAdmin)
-admin.site.register(models.Favorite, FavoriteAdmin)
-admin.site.register(models.ShoppingCart, ShoppingCartAdmin)
-admin.site.register(
-    models.RecipeIngredient,
-    RecipeIngredientAdmin
-)
+    list_display = ('pk', 'user', 'recipe')
+    search_fields = ('user__username', 'recipe__name')

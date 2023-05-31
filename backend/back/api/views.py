@@ -10,20 +10,16 @@ from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.validators import ValidationError
 from users.models import Follow, User
 
+from . import serializers
 from .filters import CustomFilter
 from .pagination import CustomPaginator
 from .permissions import IsOwnerOrReadOnly
-from .serializers import (FollowCreateSerializer, FollowListSerializer,
-                          IngredientSerializer, RecipeListSerializer,
-                          RecipeCreateSerializer, RecipeFollowSerializer,
-                          TagSerializer)
 
 
 class FollowListView(ListAPIView):
-    serializer_class = FollowListSerializer
+    serializer_class = serializers.FollowListSerializer
     pagination_class = CustomPaginator
     permission_classes = (IsAuthenticated,)
 
@@ -37,7 +33,7 @@ class CreateFollowView(views.APIView):
 
     def post(self, request, pk):
         author = get_object_or_404(User, pk=pk)
-        serializer = FollowCreateSerializer(
+        serializer = serializers.FollowCreateSerializer(
             data={'author': author.id, 'user': self.request.user.id},
             context={'request': request}
         )
@@ -58,7 +54,7 @@ class TagViewSet(mixins.ListModelMixin,
                  mixins.RetrieveModelMixin,
                  viewsets.GenericViewSet):
     queryset = Tag.objects.all()
-    serializer_class = TagSerializer
+    serializer_class = serializers.TagSerializer
     permission_classes = (AllowAny,)
     pagination_class = None
 
@@ -67,7 +63,7 @@ class IngredientViewSet(mixins.ListModelMixin,
                         mixins.RetrieveModelMixin,
                         viewsets.GenericViewSet):
     queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
+    serializer_class = serializers.IngredientSerializer
     permission_classes = (AllowAny,)
     filter_backends = (filters.SearchFilter, )
     search_fields = ('^name', )
@@ -82,18 +78,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
-            return RecipeListSerializer
-        return RecipeCreateSerializer
+            return serializers.RecipeListSerializer
+        return serializers.RecipeCreateSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
     def create_model(self, model, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
-        if not model.objects.filter(recipe=recipe, user=self.request.user).exists():
+        if not model.objects.filter(recipe=recipe,
+                                    user=self.request.user
+                                    ).exists():
             model.objects.create(recipe=recipe, user=self.request.user)
-            serializer = RecipeFollowSerializer(recipe)
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+            serializer = serializers.RecipeFollowSerializer(recipe)
+            return Response(
+                data=serializer.data, status=status.HTTP_201_CREATED)
 
         return Response({'errors': 'Рецепт уже добавлен.'},
                         status=status.HTTP_400_BAD_REQUEST)
@@ -145,5 +144,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             file_list.append(f'{name} ({measurement_unit}) - {amount}')
 
         file = HttpResponse('\n'.join(file_list), content_type='text/plain')
-        file['Content-Disposition'] = f'attachment; filename={settings.FILE_NAME}'
+        file['Content-Disposition'] = (f'attachment; '
+                                       f'filename={settings.FILE_NAME}')
         return file

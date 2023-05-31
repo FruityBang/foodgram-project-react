@@ -62,12 +62,12 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='ingredient_for_recipe'  # related_name='ingredient_in_recipe',
+        related_name='ingredient_for_recipe'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='recipes'  # related_name='ingredients_list',
+        related_name='recipes'
     )
     amount = models.PositiveSmallIntegerField(
         'Количество',
@@ -93,22 +93,18 @@ class Favorite(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='favorites',
-        verbose_name='Избранные рецепты',
-        help_text='Избранные рецепты пользователя'
+        related_name='user_favorite'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='users_favorites',
-        verbose_name='Избранные у пользователей',
-        help_text='Избранные рецепты у пользователей'
+        related_name='recipe_favorite'
     )
 
     class Meta:
         constraints = (
             models.UniqueConstraint(
-                fields=('user', 'recipe'),
+                fields=['user', 'recipe'],
                 name='unique_favorite'
             ),
         )
@@ -116,33 +112,30 @@ class Favorite(models.Model):
         verbose_name_plural = 'Избранное'
 
     def __str__(self):
-        return f'{self.user} added {self.recipe} to favorite'
+        return f'{self.user} - {self.recipe}'
 
 
 class ShoppingCart(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='shopping_cart',
-        verbose_name='Список покупок',
-        help_text='Список покупок пользователя'
+        related_name='shopping_cart'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='shopping_cart',
-        verbose_name='В списке у пользователей'
+        related_name='shopping_cart'
     )
 
     class Meta:
         constraints = (
             models.UniqueConstraint(
-                fields=('user', 'recipe'),
-                name='unique_recipe'
+                fields=['user', 'recipe'],
+                name='unique_shoping_cart'
             ),
         )
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
 
     def __str__(self):
-        return f'{self.user} added {self.recipe} in shopping cart'
+        return f'{self.user} - {self.recipe}'
