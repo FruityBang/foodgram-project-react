@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, IngredientsInRecipe, Recipe,
                             ShoppingCart, Tag)
-from rest_framework import mixins, status, views, viewsets
+from rest_framework import filters, mixins, status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 from users.models import Follow, User
 
-from .filters import IngredientFilter, TagFilter
+from .filters import TagFilter
 from .pagination import CustomPagination
 from .permissions import IsOwnerOrReadOnly
 from .serializers import (AddRecipeSerializer, FollowCreateSerializer,
@@ -62,15 +62,14 @@ class TagViewSet(mixins.ListModelMixin,
     pagination_class = None
 
 
-class IngredientViewSet(
-    mixins.RetrieveModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet
-):
+class IngredientViewSet(mixins.ListModelMixin,
+                        mixins.RetrieveModelMixin,
+                        viewsets.GenericViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
-    filterset_class = IngredientFilter
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('^name', )
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
