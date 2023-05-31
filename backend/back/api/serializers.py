@@ -109,7 +109,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         else:
             queryset = Recipe.objects.filter(
                 author=obj.author)
-        serializer = recipes.serializers.ShortRecipeSerializer(
+        serializer = ShortRecipeSerializer(
             queryset, read_only=True, many=True
         )
         return serializer.data

@@ -25,7 +25,7 @@ class Command(BaseCommand):
         file_path = options['path']
         conn = psycopg2.connect(
             'host=localhost port=5432 dbname=postgres '
-            'user=postgres password=postgres')
+            'user=postgres password=Kurwa666')
         cur = conn.cursor()
         temp = []
         with open(file_path, encoding='utf8', mode='r') as csv_file:
