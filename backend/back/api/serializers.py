@@ -7,9 +7,7 @@ from users.models import Follow, User
 
 
 class CustomUserSerializer(UserSerializer):
-    is_subscribed = serializers.SerializerMethodField(
-        method_name='get_is_subscribed'
-    )
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -23,12 +21,11 @@ class CustomUserSerializer(UserSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        if request is None or request.user.is_anonymous:
-            return False
-        return Follow.objects.filter(
-            user=request.user, author=obj
-        ).exists()
+        if (self.context.get('request')
+           and not self.context['request'].user.is_anonymous):
+            return Follow.objects.filter(user=self.context['request'].user,
+                                         author=obj).exists()
+        return False
 
 
 class FollowListSerializer(serializers.ModelSerializer):
@@ -37,13 +34,9 @@ class FollowListSerializer(serializers.ModelSerializer):
     username = serializers.ReadOnlyField(source='author.username')
     first_name = serializers.ReadOnlyField(source='author.first_name')
     last_name = serializers.ReadOnlyField(source='author.last_name')
-    is_subscribed = serializers.SerializerMethodField(
-        method_name='get_is_subscribed'
-    )
-    recipes = serializers.SerializerMethodField(method_name='get_recipes')
-    recipes_count = serializers.SerializerMethodField(
-        method_name='get_recipes_count'
-    )
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Follow
@@ -59,27 +52,24 @@ class FollowListSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        request = self.context.get('request')
         return Follow.objects.filter(
-            author=obj.author, user=request.user
+            user=self.context['request'].user, author=obj.author
         ).exists()
-
-    def get_recipes(self, obj):
-        request = self.context.get('request')
-        if request.GET.get('recipe_limit'):
-            recipe_limit = int(request.GET.get('recipe_limit'))
-            queryset = models.Recipe.objects.filter(
-                author=obj.author)[:recipe_limit]
-        else:
-            queryset = models.Recipe.objects.filter(
-                author=obj.author)
-        serializer = ShortRecipeSerializer(
-            queryset, read_only=True, many=True
-        )
-        return serializer.data
 
     def get_recipes_count(self, obj):
         return obj.author.recipes.count()
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        limit = request.GET.get('recipes_limit')
+        recipes = models.Recipe.objects.filter(
+                author=obj.author)
+        if limit:
+            recipes = recipes[:int(limit)]
+        serializer = ShortRecipeSerializer(
+            recipes, read_only=True, many=True
+        )
+        return serializer.data
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
@@ -87,6 +77,20 @@ class SubscribeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
         fields = ('user', 'author')
+        validators = [
+            validators.UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=('user', 'author'),
+                message="Двойная подписка"
+            )
+        ]
+
+    def validate_following(self, value):
+        if self.context['request'].user == value:
+            raise serializers.ValidationError(
+                'Подписка на себя'
+            )
+        return value
 
     def to_representation(self, instance):
         request = self.context.get('request')
@@ -96,19 +100,6 @@ class SubscribeSerializer(serializers.ModelSerializer):
             context=context
         )
         return serializer.data
-
-    def validate(self, data):
-        user = data.get('user')
-        author = data.get('author')
-        if user == author:
-            raise serializers.ValidationError(
-                'Нельзя подписаться на самого себя!'
-            )
-        if Follow.objects.filter(user=user, author=author).exists():
-            raise serializers.ValidationError(
-                'Вы уже подписаны на этого пользователя!'
-            )
-        return data
 
 
 class TagSerializer(serializers.ModelSerializer):
