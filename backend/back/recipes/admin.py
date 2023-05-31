@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Favorite, Ingredient, IngredientsInRecipe, Recipe, ShoppingCart, Tag
+from . import models
 
 
 class TagAdmin(admin.ModelAdmin):
@@ -14,11 +14,11 @@ class TagAdmin(admin.ModelAdmin):
     search_fields = ('name', 'color', 'slug')
 
 
-admin.site.register(Tag, TagAdmin)
+admin.site.register(models.Tag, TagAdmin)
 
 
 class IngredientsInRecipeInline(admin.TabularInline):
-    model = Recipe.ingredients.through
+    model = models.Recipe.ingredients.through
     extra = 1
 
 
@@ -86,11 +86,11 @@ class ShoppingCartAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(Ingredient, IngredientAdmin)
-admin.site.register(Recipe, RecipeAdmin)
-admin.site.register(Favorite, FavoriteAdmin)
-admin.site.register(ShoppingCart, ShoppingCartAdmin)
+admin.site.register(models.Ingredient, IngredientAdmin)
+admin.site.register(models.Recipe, RecipeAdmin)
+admin.site.register(models.Favorite, FavoriteAdmin)
+admin.site.register(models.ShoppingCart, ShoppingCartAdmin)
 admin.site.register(
-    IngredientsInRecipe,
+    models.IngredientsInRecipe,
     IngredientsInRecipeAdmin
 )

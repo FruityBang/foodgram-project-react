@@ -101,7 +101,7 @@ class Recipe(models.Model):
         through_fields=('recipe', 'ingredient'),
         verbose_name='Ингредиенты',
         help_text='Выберите ингредиенты'
-    ) 
+    )
     cooking_time = models.PositiveSmallIntegerField(
         null=False,
         verbose_name='Время приготовления',

@@ -1,12 +1,13 @@
 from django.contrib import admin
 
-from .models import Subscription, User
+from .models import Follow, User
 
 
+@admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = (
-        'pk',
         'username',
+        'pk',
         'first_name',
         'last_name',
         'email',
@@ -15,15 +16,12 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ('username', 'email', 'first_name', 'last_name')
 
 
-class SubscriptionAdmin(admin.ModelAdmin):
+@admin.register(Follow)
+class FollowAdmin(admin.ModelAdmin):
     list_display = (
-        'pk',
         'user',
-        'author'
+        'author',
+        'pk',
     )
     list_filter = ('user', 'author')
-    search_fields = ('user__username', 'user__email')
-
-
-admin.site.register(User, UserAdmin)
-admin.site.register(Subscription, SubscriptionAdmin)
+    search_fields = ('user__username', 'author__username')

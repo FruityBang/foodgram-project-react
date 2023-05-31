@@ -1,35 +1,28 @@
-from django.shortcuts import get_object_or_404
-from rest_framework import status, views
-from rest_framework.generics import ListAPIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-
-from .pagination import CustomPagination
-from users.models import Subscription, User
-from .serializers import SubscribeSerializer, SubscriptionSerializer
-
-from rest_framework import mixins, viewsets
-from rest_framework.permissions import AllowAny
-
-from recipes.models import Tag
-from .serializers import TagSerializer
-
 from django.db.models import Sum
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from recipes.models import (Favorite, Ingredient, IngredientsInRecipe, Recipe,
+                            ShoppingCart, Tag)
+from rest_framework import mixins, status, views, viewsets
 from rest_framework.decorators import action
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.validators import ValidationError
+from users.models import Follow, User
 
 from .filters import IngredientFilter, TagFilter
-from recipes.models import (Favorite, Ingredient, IngredientsInRecipe, Recipe,
-                            ShoppingCart)
+from .pagination import CustomPagination
 from .permissions import IsOwnerOrReadOnly
-from .serializers import (AddRecipeSerializer, IngredientSerializer,
-                          RecipeSerializer, ShortRecipeSerializer)
+from .serializers import (AddRecipeSerializer, FollowListSerializer,
+                          IngredientSerializer, RecipeSerializer,
+                          ShortRecipeSerializer, SubscribeSerializer,
+                          TagSerializer)
 from .utils import convert_txt
 
 
-class SubscriptionViewSet(ListAPIView):
-    serializer_class = SubscriptionSerializer
+class FollowListView(ListAPIView):
+    serializer_class = FollowListSerializer
     pagination_class = CustomPagination
     permission_classes = (IsAuthenticated,)
 
@@ -57,7 +50,7 @@ class SubscribeView(views.APIView):
         author = get_object_or_404(User, pk=pk)
         user = self.request.user
         subscription = get_object_or_404(
-            Subscription, user=user, author=author
+            Follow, user=user, author=author
         )
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
