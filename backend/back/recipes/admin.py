@@ -17,12 +17,12 @@ class TagAdmin(admin.ModelAdmin):
 admin.site.register(models.Tag, TagAdmin)
 
 
-class IngredientsInRecipeInline(admin.TabularInline):
-    model = models.Recipe.ingredients.through
-    extra = 1
+# class RecipeIngredientInline(admin.TabularInline):
+#     model = models.Recipe.ingredients.through
+#     extra = 1
 
 
-class IngredientsInRecipeAdmin(admin.ModelAdmin):
+class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'ingredient',
@@ -43,7 +43,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    inlines = (IngredientsInRecipeInline,)
+#    inlines = (RecipeIngredientInline,)
     list_display = (
         'pk',
         'name',
@@ -91,6 +91,6 @@ admin.site.register(models.Recipe, RecipeAdmin)
 admin.site.register(models.Favorite, FavoriteAdmin)
 admin.site.register(models.ShoppingCart, ShoppingCartAdmin)
 admin.site.register(
-    models.IngredientsInRecipe,
-    IngredientsInRecipeAdmin
+    models.RecipeIngredient,
+    RecipeIngredientAdmin
 )

@@ -145,7 +145,7 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit')
 
 
-class IngredientInRecipeSerializer(serializers.ModelSerializer):
+class RecipeIngredientListSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -153,28 +153,18 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = models.IngredientsInRecipe
+        model = models.RecipeIngredient
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
-    validators = (
-        validators.UniqueTogetherValidator(
-            queryset=models.IngredientsInRecipe.objects.all(),
-            fields=('ingredient', 'recipe')
-        ),
-    )
 
-    def __str__(self):
-        return f'{self.ingredient} in {self.recipe}'
-
-
-class AddIngredientSerializer(serializers.ModelSerializer):
+class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(
         queryset=models.Ingredient.objects.all()
     )
     amount = serializers.IntegerField()
 
     class Meta:
-        model = models.IngredientsInRecipe
+        model = models.RecipeIngredient
         fields = ('id', 'amount')
 
 
@@ -183,7 +173,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagToRecipe(
         slug_field='id', queryset=models.Tag.objects.all(), many=True
     )
-    ingredients = IngredientInRecipeSerializer(
+    ingredients = RecipeIngredientListSerializer(
         source='ingredient_in_recipe',
         read_only=True, many=True
     )
@@ -228,7 +218,7 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         queryset=models.Tag.objects.all(),
         many=True
     )
-    ingredients = AddIngredientSerializer(many=True)
+    ingredients = RecipeIngredientCreateSerializer(many=True)
     image = Base64ImageField(max_length=None)
 
     class Meta:
@@ -250,7 +240,7 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             amount = ingredient['amount']
             ingredient = ingredient['id']
-            ingredients, created = models.IngredientsInRecipe.objects.get_or_create(
+            ingredients, created = models.RecipeIngredient.objects.get_or_create(
                 recipe=recipe,
                 ingredient=ingredient,
                 amount=amount

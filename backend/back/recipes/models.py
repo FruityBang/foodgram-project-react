@@ -30,11 +30,7 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
-    name = models.CharField(
-        max_length=200,
-        verbose_name='Название',
-        help_text='Введите название рецепта'
-    )
+    name = models.CharField('Название', max_length=200)
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -60,7 +56,7 @@ class Recipe(models.Model):
     )
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='IngredientsInRecipe',
+        through='RecipeIngredient',
         through_fields=('recipe', 'ingredient'),
         verbose_name='Ингредиенты',
         help_text='Выберите ингредиенты'
@@ -90,33 +86,35 @@ class Recipe(models.Model):
         return self.name
 
 
-class IngredientsInRecipe(models.Model):
+class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='ingredient_in_recipe',
-        verbose_name='Ингредиенты'
+        related_name='ingredient_for_recipe'  # related_name='ingredient_in_recipe',
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='ingredients_list',
-        verbose_name='Рецепты'
+        related_name='recipes'  # related_name='ingredients_list',
     )
-    amount = models.PositiveSmallIntegerField('Количество')
+    amount = models.PositiveSmallIntegerField(
+        'Количество',
+        validators=[MinValueValidator(1)]
+    )
 
     class Meta:
         constraints = (
             models.UniqueConstraint(
-                fields=('ingredient', 'recipe'),
+                fields=['recipe', 'ingredient'],
                 name='unique_ingredient'
             ),
         )
-        verbose_name = 'Ингредиенты рецепта'
-        verbose_name_plural = 'Ингредиенты рецептов'
 
     def __str__(self):
-        return f'{self.recipe} - {self.ingredient}'
+        return (f'{self.recipe.name}: '
+                f'{self.ingredient.name} - '
+                f'{self.amount} '
+                f'{self.ingredient.measurement_unit}')
 
 
 class Favorite(models.Model):
