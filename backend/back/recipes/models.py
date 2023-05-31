@@ -5,37 +5,9 @@ from users.models import User
 
 
 class Tag(models.Model):
-    BLUE = "#0000FF"
-    RED = "#FF0000"
-    GREEN = "#008000"
-    YELLOW = "#FFFF00"
-
-    COLOR_CHOICES = [
-        (BLUE, "Синий"),
-        (RED, "Красный"),
-        (GREEN, "Зелёный"),
-        (YELLOW, "Жёлтый"),
-    ]
-
-    name = models.CharField(
-        max_length=255,
-        unique=True,
-        verbose_name='Название',
-        help_text='Введите название тега'
-    )
-    color = models.CharField(
-        max_length=7,
-        choices=COLOR_CHOICES,
-        unique=True,
-        verbose_name="Цвет",
-    )
-
-    slug = models.SlugField(
-        max_length=50,
-        unique=True,
-        verbose_name='Cлаг',
-        help_text='Введите слаг'
-    )
+    name = models.CharField('Тэг', max_length=256)
+    slug = models.SlugField('Уникальный адрес', max_length=50, unique=True)
+    color = models.CharField(max_length=7, unique=True)
 
     class Meta:
         verbose_name = 'Тег'
@@ -46,17 +18,8 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField(
-        max_length=255,
-        db_index=True,
-        verbose_name='Название',
-        help_text='Введите название ингредиента'
-    )
-    measurement_unit = models.CharField(
-        max_length=50,
-        verbose_name='Единица измерения',
-        help_text='Введите единицу измерения'
-    )
+    name = models.CharField('Ингредиенты', max_length=256)
+    measurement_unit = models.CharField('Единица измерения', max_length=25)
 
     class Meta:
         verbose_name = 'Ингредиент'

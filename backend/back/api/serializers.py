@@ -1,9 +1,12 @@
+import webcolors
 from django.db import transaction
 from djoser.serializers import UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from recipes import models
 from rest_framework import serializers, validators
 from users.models import Follow, User
+
+# USERS&FOLLOW vol.
 
 
 class CustomUserSerializer(UserSerializer):
@@ -101,19 +104,36 @@ class FollowCreateSerializer(serializers.ModelSerializer):
         )
         return serializer.data
 
+# RECIPES vol.
+
+
+class TagColorField(serializers.Field):
+    def to_representation(self, value):
+        return value
+
+    def to_internal_value(self, data):
+        try:
+            data = webcolors.hex_to_name(data)
+        except ValueError:
+            raise serializers.ValidationError('Для этого цвета нет имени')
+
 
 class TagSerializer(serializers.ModelSerializer):
+    color = TagColorField()
 
     class Meta:
         model = models.Tag
-        fields = ('__all__')
+        fields = ('id', 'name', 'slug', 'color')
 
 
-class TagField(serializers.SlugRelatedField):
+class TagToRecipe(serializers.SlugRelatedField):
+
+    class Meta:
+        model = models.Tag
+        fields = ('id')
 
     def to_representation(self, value):
-        request = self.context.get('request')
-        context = {'request': request}
+        context = {'request': self.context.get('request')}
         serializer = TagSerializer(value, context=context)
         return serializer.data
 
@@ -160,7 +180,7 @@ class AddIngredientSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer()
-    tags = TagField(
+    tags = TagToRecipe(
         slug_field='id', queryset=models.Tag.objects.all(), many=True
     )
     ingredients = IngredientInRecipeSerializer(
