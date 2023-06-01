@@ -124,4 +124,6 @@ DJOSER = {
     },
 }
 
+MIN_COOKING_AND_AMOUNT = 1
+
 FILE_NAME = 'shopping_cart.txt'

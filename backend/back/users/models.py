@@ -13,6 +13,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     class Meta:
+        ordering = ('-id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Подьзователи'
 
@@ -35,6 +36,7 @@ class Follow(models.Model):
     )
 
     class Meta:
+        ordering = ('-author_id',)
         constraints = (
             models.UniqueConstraint(fields=['user', 'author'],
                                     name='unique_follow'),

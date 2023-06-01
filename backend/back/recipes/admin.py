@@ -10,6 +10,11 @@ class TagAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
+class RecipeIngredientInline(admin.StackedInline):
+    model = models.RecipeIngredient
+    min_num = 1
+
+
 @admin.register(models.Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'measurement_unit')
@@ -25,13 +30,14 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
 
 @admin.register(models.Recipe)
 class RecipeAdmin(admin.ModelAdmin):
+    inlines = [RecipeIngredientInline]
     list_display = ('pk', 'name', 'author', 'is_favorited')
     search_fields = ('name', 'author__username')
     list_filter = ('name', 'author', 'tags')
     readonly_fields = ('is_favorited',)
 
     def is_favorited(self, instance):
-        return instance.users_favorites.count()
+        return instance.recipe_favorite.count()
 
 
 @admin.register(models.Favorite)

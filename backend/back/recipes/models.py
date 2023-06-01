@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from users.models import User
@@ -9,6 +10,7 @@ class Tag(models.Model):
     color = models.CharField(max_length=7, unique=True)
 
     class Meta:
+        ordering = ('name',)
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
 
@@ -21,6 +23,7 @@ class Ingredient(models.Model):
     measurement_unit = models.CharField('Единица измерения', max_length=25)
 
     class Meta:
+        ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
 
@@ -45,12 +48,12 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveSmallIntegerField(
         'Время приготовления',
-        validators=[MinValueValidator(1)]
+        validators=[MinValueValidator(settings.MIN_COOKING_AND_AMOUNT)]
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     class Meta:
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
@@ -71,10 +74,11 @@ class RecipeIngredient(models.Model):
     )
     amount = models.PositiveSmallIntegerField(
         'Количество',
-        validators=[MinValueValidator(1)]
+        validators=[MinValueValidator(settings.MIN_COOKING_AND_AMOUNT)]
     )
 
     class Meta:
+        ordering = ('-id',)
         constraints = (
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
@@ -102,6 +106,7 @@ class Favorite(models.Model):
     )
 
     class Meta:
+        ordering = ('user_id',)
         constraints = (
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
@@ -128,6 +133,7 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
+        ordering = ('user_id',)
         constraints = (
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
