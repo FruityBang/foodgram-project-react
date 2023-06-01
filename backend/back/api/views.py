@@ -3,13 +3,13 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag)
 from rest_framework import filters, mixins, status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
 from users.models import Follow, User
 
 from . import serializers
@@ -86,16 +86,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def create_model(self, model, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
-        if not model.objects.filter(recipe=recipe,
-                                    user=self.request.user
-                                    ).exists():
-            model.objects.create(recipe=recipe, user=self.request.user)
-            serializer = serializers.RecipeFollowSerializer(recipe)
-            return Response(
-                data=serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response({'errors': 'Рецепт уже добавлен.'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        model.objects.create(recipe=recipe, user=self.request.user)
+        serializer = serializers.RecipeFollowSerializer(recipe)
+        return Response(
+            data=serializer.data, status=status.HTTP_201_CREATED)
 
     def delete_model(self, model, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)

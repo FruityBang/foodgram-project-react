@@ -1,13 +1,11 @@
 import base64
 
-import webcolors
 from django.core.files.base import ContentFile
 from djoser.serializers import UserSerializer
-from recipes import models
 from rest_framework import serializers, validators
+import webcolors
+from recipes import models
 from users.models import Follow, User
-
-# USERS&FOLLOW vol.
 
 
 class CustomUserSerializer(UserSerializer):
@@ -25,10 +23,9 @@ class CustomUserSerializer(UserSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        if (self.context.get('request')
-           and not self.context['request'].user.is_anonymous):
-            return Follow.objects.filter(user=self.context['request'].user,
-                                         author=obj).exists()
+        request = self.context.get('request')
+        if (request and not request.user.is_anonymous):
+            return request.user.follower.filter(author=obj).exists()
         return False
 
 
@@ -63,9 +60,8 @@ class FollowListSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        return Follow.objects.filter(
-            user=self.context['request'].user, author=obj.author
-        ).exists()
+        user = self.context['request'].user
+        return user.follower.filter(author=obj.author).exists()
 
     def get_recipes_count(self, obj):
         return obj.author.recipes.count()
@@ -73,8 +69,7 @@ class FollowListSerializer(serializers.ModelSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
-        recipes = models.Recipe.objects.filter(
-                author=obj.author)
+        recipes = obj.author.recipes.all()
         if limit:
             recipes = recipes[:int(limit)]
         serializer = RecipeFollowSerializer(
@@ -111,8 +106,6 @@ class FollowCreateSerializer(serializers.ModelSerializer):
             context=context
         )
         return serializer.data
-
-# RECIPES vol.
 
 
 class TagColorField(serializers.Field):
@@ -251,12 +244,13 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         )
 
     def add_ingredients(self, recipe, ingredients):
-        for ingredient in ingredients:
-            ingredient, _ = models.RecipeIngredient.objects.get_or_create(
+        models.RecipeIngredient.objects.bulk_create(
+            [models.RecipeIngredient(
                 recipe=recipe,
                 ingredient=ingredient['id'],
                 amount=ingredient['amount']
-            )
+                ) for ingredient in ingredients]
+        )
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
