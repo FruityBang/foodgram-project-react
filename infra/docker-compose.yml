@@ -19,7 +19,7 @@ services:
       - ./.env
 
   frontend:
-    image: fruitybang/foodfront:latest
+    image: fruitybang/foodfront:v2.0
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
