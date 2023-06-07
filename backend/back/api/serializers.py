@@ -1,9 +1,12 @@
 import base64
-
+from django.conf import settings
 from django.core.files.base import ContentFile
+from django.core.validators import MaxValueValidator, MinValueValidator
 from djoser.serializers import UserSerializer
 from rest_framework import serializers, validators
+
 import webcolors
+
 from recipes import models
 from users.models import Follow, User
 
@@ -162,7 +165,12 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(
         queryset=models.Ingredient.objects.all()
     )
-    amount = serializers.IntegerField()
+    amount = serializers.IntegerField(
+        validators=[
+            MinValueValidator(settings.MIN_COOKING_AND_AMOUNT, 'Слишком мало'),
+            MaxValueValidator(settings.MAX_COOKING_AND_AMOUNT, 'Многовато')
+        ]
+    )
 
     class Meta:
         model = models.RecipeIngredient
