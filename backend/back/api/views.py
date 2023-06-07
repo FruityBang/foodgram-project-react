@@ -3,7 +3,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, status, views, viewsets
+from rest_framework import mixins, status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -13,7 +13,7 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
 from users.models import Follow, User
 
 from . import serializers
-from .filters import CustomFilter
+from .filters import CustomFilter, IngredientsFilter
 from .pagination import CustomPaginator
 from .permissions import IsOwnerOrReadOnly
 
@@ -65,8 +65,7 @@ class IngredientViewSet(mixins.ListModelMixin,
     queryset = Ingredient.objects.all()
     serializer_class = serializers.IngredientSerializer
     permission_classes = (AllowAny,)
-    filter_backends = (filters.SearchFilter, )
-    search_fields = ('^name', )
+    filterset_class = IngredientsFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
