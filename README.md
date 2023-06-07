@@ -1,6 +1,6 @@
 # Foodgram
 
-![My own! workflow](https://github.com/fruitybang/foodgram-project-react/actions/workflows/main.yml/badge.svg)
+![My own! workflow](https://github.com/fruitybang/foodgram-project-react/actions/workflows/main.yml/badge.svg) 
 
 ## Стек 
 `Python` `Django` `Django Rest Framework` `Docker` `Gunicorn` `NGINX` `PostgreSQL` `CI/CD`
