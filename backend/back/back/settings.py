@@ -130,7 +130,8 @@ DJOSER = {
     },
     'PERMISSIONS': {
         'user': ['rest_framework.permissions.AllowAny'],
-    }, 
+        'user_list': ['rest_framework.permissions.AllowAny'],
+    },
 }
 
 MIN_COOKING_AND_AMOUNT = 1
